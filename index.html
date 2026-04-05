@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>inbox. — life dashboard</title>
+  <meta name="theme-color" content="#0c0c0e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="noise"></div>
+
+<!-- ── HEADER ── -->
+<header class="hdr">
+  <div class="hdr-left">
+    <a class="hdr-back" href="https://cl0s3s.github.io/life/">← life.</a>
+    <div class="hdr-logo">inbox<span>.</span></div>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-date" id="hdr-date"></div>
+    <button class="btn-settings" id="btn-settings" title="Gérer adresses & règles">⚙</button>
+    <button class="btn-add-mail" id="btn-open-add">+ mail</button>
+  </div>
+</header>
+
+<!-- ── STATS BAR ── -->
+<div class="stats-bar" id="stats-bar"></div>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+  <!-- ── FILTER ROW ── -->
+  <div class="filter-row">
+    <div class="filter-bar" id="filter-accounts">
+      <button class="filter-pill active" data-account="all">toutes les boîtes</button>
+    </div>
+    <div class="filter-right">
+      <div class="search-mini-wrap">
+        <input type="text" class="search-mini" id="search-mini" placeholder="rechercher..." />
+      </div>
+      <select class="sort-select" id="sort-select">
+        <option value="date-desc">plus récent</option>
+        <option value="date-asc">plus ancien</option>
+        <option value="unread">non lus</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ── CATEGORY TABS ── -->
+  <div class="cat-tabs" id="cat-tabs">
+    <button class="cat-tab active" data-cat="all">
+      <span class="cat-tab-icon">📬</span> tous
+      <span class="cat-tab-count" id="count-all">0</span>
+    </button>
+    <button class="cat-tab" data-cat="unread">
+      <span class="cat-tab-icon">🔵</span> non lus
+      <span class="cat-tab-count" id="count-unread">0</span>
+    </button>
+  </div>
+
+  <!-- ── MAILS LIST ── -->
+  <div class="mails-list" id="mails-list"></div>
+
+  <div class="empty-state" id="empty-state" style="display:none">
+    <div class="empty-icon">📭</div>
+    <div class="empty-title">boîte vide</div>
+    <div class="empty-sub">ajoute ton premier mail ou configure tes règles de tri</div>
+    <button class="btn-empty" id="btn-empty-add">+ ajouter un mail</button>
+  </div>
+
+</main>
+
+<!-- ══ PANEL SETTINGS ══ -->
+<div class="panel-overlay" id="panel-settings" style="display:none">
+  <div class="side-panel">
+    <div class="side-panel-hdr">
+      <div class="side-panel-title">paramètres</div>
+      <button class="panel-close" id="panel-close">×</button>
+    </div>
+    <div class="side-panel-body">
+
+      <!-- Adresses Gmail -->
+      <div class="settings-section">
+        <div class="settings-section-title">📧 boîtes Gmail</div>
+        <div class="accounts-list" id="accounts-list"></div>
+        <div class="add-account-row">
+          <input type="email" id="new-account-email" placeholder="adresse@gmail.com" />
+          <input type="text" id="new-account-label" placeholder="alias (ex: perso)" />
+          <div class="account-color-row" id="account-colors">
+            <div class="acol active" data-color="#e2ff7c" style="background:#e2ff7c"></div>
+            <div class="acol" data-color="#60a5fa" style="background:#60a5fa"></div>
+            <div class="acol" data-color="#f59e0b" style="background:#f59e0b"></div>
+            <div class="acol" data-color="#34d399" style="background:#34d399"></div>
+            <div class="acol" data-color="#a78bfa" style="background:#a78bfa"></div>
+            <div class="acol" data-color="#f87171" style="background:#f87171"></div>
+          </div>
+          <button class="btn-add-small" id="btn-add-account">+ ajouter</button>
+        </div>
+      </div>
+
+      <!-- Règles de tri -->
+      <div class="settings-section">
+        <div class="settings-section-title">⚙️ règles de tri</div>
+        <div class="rules-list" id="rules-list"></div>
+        <div class="add-rule-form">
+          <div class="rule-field">
+            <label class="rule-lbl">nom de la règle</label>
+            <input type="text" id="rule-name" placeholder="ex: Profs, Promos jeux..." />
+          </div>
+          <div class="rule-field">
+            <label class="rule-lbl">type de filtre</label>
+            <div class="rule-type-pills">
+              <button class="rule-type-pill active" data-rtype="keyword">mot-clé</button>
+              <button class="rule-type-pill" data-rtype="sender">expéditeur</button>
+              <button class="rule-type-pill" data-rtype="both">les deux</button>
+            </div>
+          </div>
+          <div class="rule-field" id="field-keywords">
+            <label class="rule-lbl">mots-clés (séparés par des virgules)</label>
+            <input type="text" id="rule-keywords" placeholder="ex: devoir, cours, contrôle" />
+          </div>
+          <div class="rule-field" id="field-senders">
+            <label class="rule-lbl">adresses expéditeurs (séparées par des virgules)</label>
+            <input type="text" id="rule-senders" placeholder="ex: prof@lycee.fr, admin@..." />
+          </div>
+          <div class="rule-field">
+            <label class="rule-lbl">couleur de la règle</label>
+            <div class="rule-colors" id="rule-colors">
+              <div class="rcol active" data-color="#60a5fa" style="background:#60a5fa"></div>
+              <div class="rcol" data-color="#f59e0b" style="background:#f59e0b"></div>
+              <div class="rcol" data-color="#34d399" style="background:#34d399"></div>
+              <div class="rcol" data-color="#a78bfa" style="background:#a78bfa"></div>
+              <div class="rcol" data-color="#f87171" style="background:#f87171"></div>
+              <div class="rcol" data-color="#e2ff7c" style="background:#e2ff7c"></div>
+            </div>
+          </div>
+          <button class="btn-add-small full" id="btn-add-rule">+ ajouter la règle</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: ajouter un mail ══ -->
+<div class="modal-overlay" id="modal-add" style="display:none">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">ajouter un mail</div>
+      <button class="modal-close" id="modal-add-close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label class="field-lbl">reçu sur *</label>
+        <select id="add-account">
+          <option value="">-- choisir une boîte --</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-lbl">expéditeur *</label>
+        <input type="text" id="add-from" placeholder="ex: prof.math@lycee.fr" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label class="field-lbl">sujet *</label>
+        <input type="text" id="add-subject" placeholder="ex: Devoir maison n°3" />
+      </div>
+      <div class="field">
+        <label class="field-lbl">date de réception</label>
+        <input type="datetime-local" id="add-date" />
+      </div>
+      <div class="field">
+        <label class="field-lbl">note / résumé (optionnel)</label>
+        <textarea id="add-note" rows="2" placeholder="Ce dont il s'agit en quelques mots..."></textarea>
+      </div>
+      <div class="field">
+        <label class="field-lbl">marquer comme</label>
+        <div class="read-pills">
+          <button class="read-pill active" data-read="false">🔵 non lu</button>
+          <button class="read-pill" data-read="true">✓ lu</button>
+        </div>
+      </div>
+      <!-- Règles détectées automatiquement -->
+      <div class="detected-rules" id="detected-rules" style="display:none">
+        <div class="detected-rules-label">règles détectées :</div>
+        <div class="detected-rules-list" id="detected-rules-list"></div>
+      </div>
+      <button class="btn-submit" id="btn-add-submit">ajouter →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: détail mail ══ -->
+<div class="modal-overlay" id="modal-detail" style="display:none">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title" id="detail-subject"></div>
+      <button class="modal-close" id="modal-detail-close">×</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
